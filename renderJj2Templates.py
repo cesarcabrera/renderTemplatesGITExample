@@ -19,6 +19,7 @@ if __name__ == '__main__':
     print(f"INFO: detected {len(sectionGroups)} sectionGroups")
     print(f"INFO: {sectionGroups}")
     env = jinja2.Environment()
+    outputConfigs = {}
     for g in sectionGroups:
         # Read template
         df = pd.read_excel(templateFolder + "/" + configFile, sheet_name=g)
@@ -47,6 +48,11 @@ if __name__ == '__main__':
             print(f"DEB: {name} => {data[name]}")
         config = env.from_string(str(template))
         print(f">>> START Config for {g}")
-        print(config.render(data))
+        outputConfigs[g] = config.render(data)
+        print(outputConfigs[g])
         print(f"<<< END Config for {g}")
-
+    last = datetime.now() - start
+    print(f"INFO: Execution took {last.microseconds} microseconds")
+    df = pd.DataFrame(outputConfigs, index=["Configs"])
+    print(df)
+    df.to_excel('result.xlsx')
